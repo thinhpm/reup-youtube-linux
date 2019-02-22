@@ -70,9 +70,9 @@ def save_to_file(id_series, id_chapt_new, stt_id):
 
 def upload_youtube_and_check_out_number(title, description, tags, file_name, stt_id):
     #'--thumbnail=' + thumbnail,
-    process = subprocess.Popen(['youtube-upload', '--title=' + str(title) + '', '--tags=' + tags,
-                                '--description=' + description, '--client-secrets=' + stt_id + '/client_secrets.json',
-                                '--credentials-file=' + stt_id + '/credentials.json', file_name],
+    process = subprocess.Popen(['youtube-upload', '--title="' + str(title) + '"', '--tags="' + str(tags) + '"',
+                                '--description="' + str(description) + '"', '--client-secrets=' + str(stt_id) + '/client_secrets.json',
+                                '--credentials-file=' + str(stt_id) + '/credentials.json', str(file_name)],
                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout, stderr = process.communicate()
     print(stdout)
@@ -120,7 +120,7 @@ def process_video(file_name, stt_id):
     string_ffmpeg = get_ffmpeg(file_name, 'text2.txt', stt_id)
     os.system(string_ffmpeg)
 
-    return 'output/' + file_name
+    return 'output/' + str(file_name)
 
 
 def replace_name_title(name_title, stt_id):
@@ -157,21 +157,20 @@ def replace_name_title(name_title, stt_id):
 def hanlde(name_title, description, genres, stt_id):
     check = False
     file_name = get_file_upload()
-    temp_file_name = file_name
+    file_name = str(file_name)
+    temp_file_name = str(file_name)
     file_name = process_video(file_name, stt_id)
     name_title = replace_name_title(name_title, stt_id)
     description = name_title
 
     if file_name:
         print("Uploading...")
+        #isFirstUpload(stt_id)
+        if True:
 
-        if isFirstUpload(stt_id):
-            print('youtube-upload --title="' + str(
-                name_title) + '" --description="' + description + '" --tags="' + genres + '" ' + ' --client-secrets="' +
-                      stt_id + '/client_secrets.json" --credentials-file="' + stt_id + '/credentials.json" ' + file_name)
             os.system('youtube-upload --title="' + str(
                 name_title) + '" --description="' + description + '" --tags="' + genres + '" ' + ' --client-secrets="' +
-                      stt_id + '/client_secrets.json" --credentials-file="' + stt_id + '/credentials.json" ' + file_name)
+                      str(stt_id) + '/client_secrets.json" --credentials-file="' + str(stt_id) + '/credentials.json" ' + str(file_name))
 
             check = True
         else:
@@ -185,7 +184,8 @@ def hanlde(name_title, description, genres, stt_id):
 
 def download_video_from_youtube(id_video):
     print("Downloading...")
-    url = "youtube-dl -o input/input.%(ext)s https://www.youtube.com/watch?v=" + str(id_video)
+    url = "youtube-dl -o 'input/input.%(ext)s' https://www.youtube.com/watch?v=" + str(id_video)
+    print(url)
     os.system(url)
 
 
@@ -235,7 +235,6 @@ def get_list_video(channel_id, stt_id):
             if check:
                 save_to_file(channel_id, id_video, stt_id)
                 print("Done")
-                return 1
                 time.sleep(150)
 
 
