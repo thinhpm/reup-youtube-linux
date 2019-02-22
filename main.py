@@ -70,7 +70,7 @@ def save_to_file(id_series, id_chapt_new, stt_id):
 
 def upload_youtube_and_check_out_number(title, description, tags, file_name, stt_id):
     #'--thumbnail=' + thumbnail,
-    process = subprocess.Popen(['py', 'youtube-upload', '--title=' + str(title) + '', '--tags=' + tags,
+    process = subprocess.Popen(['youtube-upload', '--title=' + str(title) + '', '--tags=' + tags,
                                 '--description=' + description, '--client-secrets=' + stt_id + '/client_secrets.json',
                                 '--credentials-file=' + stt_id + '/credentials.json', file_name],
                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -169,7 +169,7 @@ def hanlde(name_title, description, genres, stt_id):
             print('youtube-upload --title="' + str(
                 name_title) + '" --description="' + description + '" --tags="' + genres + '" ' + ' --client-secrets="' +
                       stt_id + '/client_secrets.json" --credentials-file="' + stt_id + '/credentials.json" ' + file_name)
-            os.system('py youtube-upload --title="' + str(
+            os.system('youtube-upload --title="' + str(
                 name_title) + '" --description="' + description + '" --tags="' + genres + '" ' + ' --client-secrets="' +
                       stt_id + '/client_secrets.json" --credentials-file="' + stt_id + '/credentials.json" ' + file_name)
 
