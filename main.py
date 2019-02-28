@@ -246,7 +246,8 @@ def get_list_video(channel_id, stt_id):
 
             if has_video:
                 check = hanlde(title, description, tags, stt_id)
-
+            else:
+                save_to_file(channel_id, id_video, stt_id)
             if check:
                 save_to_file(channel_id, id_video, stt_id)
                 print("Done")
