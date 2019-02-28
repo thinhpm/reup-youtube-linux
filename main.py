@@ -192,10 +192,15 @@ def hanlde(name_title, description, genres, stt_id):
 def download_video_from_youtube(id_video):
     number = get_number_video("https://www.youtube.com/watch?v=" + str(id_video))
 
+    if number == False:
+        return False
+
     print("Downloading...")
     url = "youtube-dl -f " + str(number) + " -o 'input/input.%(ext)s' https://www.youtube.com/watch?v=" + str(id_video)
     print(url)
     os.system(url)
+
+    return True
 
 
 def get_tags(id_video):
@@ -236,10 +241,11 @@ def get_list_video(channel_id, stt_id):
 
         if check_exist_chapt(channel_id, id_video, stt_id):
             tags = get_tags(id_video)
+            check = False
+            has_video = download_video_from_youtube(id_video)
 
-            download_video_from_youtube(id_video)
-
-            check = hanlde(title, description, tags, stt_id)
+            if has_video:
+                check = hanlde(title, description, tags, stt_id)
 
             if check:
                 save_to_file(channel_id, id_video, stt_id)
@@ -260,36 +266,39 @@ def get_source_links(stt_id):
 
 
 def get_number_video(url):
-    stdout = subprocess.check_output(['youtube-dl', '-F', url])
-    # process = subprocess.Popen(['youtube-dl', url],
-    #                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    # stdout, stderr = process.communicate()
+    try:
+        stdout = subprocess.check_output(['youtube-dl', '-F', url])
+        # process = subprocess.Popen(['youtube-dl', url],
+        #                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        # stdout, stderr = process.communicate()
 
-    arr = str(stdout).split('\\n')
+        arr = str(stdout).split('\\n')
 
-    audio = ''
+        audio = ''
 
-    for item in arr:
-        if 'm4a' in item:
-            audio = item.split(' ')[0]
+        for item in arr:
+            if 'm4a' in item:
+                audio = item.split(' ')[0]
 
-    for item in arr:
-        if '720p' in item and 'mp4' in item:
-            return str(item.split(' ')[0]) + '+' + str(audio)
+        for item in arr:
+            if '720p' in item and 'mp4' in item:
+                return str(item.split(' ')[0]) + '+' + str(audio)
 
-    for item in arr:
-        if '480p' in item and 'mp4' in item:
-            return str(item.split(' ')[0]) + '+' + str(audio)
+        for item in arr:
+            if '480p' in item and 'mp4' in item:
+                return str(item.split(' ')[0]) + '+' + str(audio)
 
-    for item in arr:
-        if '360p' in item and 'mp4' in item:
-            return str(item.split(' ')[0]) + '+' + str(audio)
+        for item in arr:
+            if '360p' in item and 'mp4' in item:
+                return str(item.split(' ')[0]) + '+' + str(audio)
 
-    for item in arr:
-        if '240p' in item and 'mp4' in item:
-            return str(item.split(' ')[0]) + '+' + str(audio)
+        for item in arr:
+            if '240p' in item and 'mp4' in item:
+                return str(item.split(' ')[0]) + '+' + str(audio)
+    except:
+        return False
 
-    return False
+    return True
 
 
 if __name__ == '__main__':
