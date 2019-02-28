@@ -146,6 +146,10 @@ def replace_name_title(name_title, stt_id):
 
             name_title = name_title.replace(stt_need_change, str(stt_video))
 
+    if len(arr_stt) == 0:
+        has_change = True
+        name_title = name_title + str(stt_video)
+
     if has_change:
         fo = open(path_file, "w")
         fo.write(str(stt_video))
