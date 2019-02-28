@@ -69,12 +69,16 @@ def save_to_file(id_series, id_chapt_new, stt_id):
 
 
 def upload_youtube_and_check_out_number(title, description, tags, file_name, stt_id):
-    #'--thumbnail=' + thumbnail,
-    process = subprocess.Popen(['youtube-upload', '--title="' + str(title) + '"', '--tags="' + str(tags) + '"',
+    stdout = subprocess.check_output(['youtube-upload', '--title="' + str(title) + '"', '--tags="' + str(tags) + '"',
                                 '--description="' + str(description) + '"', '--client-secrets=' + str(stt_id) + '/client_secrets.json',
-                                '--credentials-file=' + str(stt_id) + '/credentials.json', str(file_name)],
-                               shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    stdout, stderr = process.communicate()
+                                '--credentials-file=' + str(stt_id) + '/credentials.json', str(file_name)])
+
+    #'--thumbnail=' + thumbnail,
+    # process = subprocess.Popen(['youtube-upload', '--title="' + str(title) + '"', '--tags="' + str(tags) + '"',
+    #                             '--description="' + str(description) + '"', '--client-secrets=' + str(stt_id) + '/client_secrets.json',
+    #                             '--credentials-file=' + str(stt_id) + '/credentials.json', str(file_name)],
+    #                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # stdout, stderr = process.communicate()
     print(stdout)
     # return 'Video URL' in stdout
     return True
@@ -163,9 +167,10 @@ def hanlde(name_title, description, genres, stt_id):
     file_name = get_file_upload()
     file_name = str(file_name)
     temp_file_name = str(file_name)
-    file_name = process_video(file_name, stt_id)
+    # file_name = process_video(file_name, stt_id)
     name_title = replace_name_title(name_title, stt_id)
     description = name_title
+    file_name = 'input/input.mp4'
 
     if file_name:
         print("Uploading...")
@@ -279,6 +284,10 @@ def get_number_video(url):
 
     for item in arr:
         if '360p' in item and 'mp4' in item:
+            return str(item.split(' ')[0]) + '+' + str(audio)
+
+    for item in arr:
+        if '240p' in item and 'mp4' in item:
             return str(item.split(' ')[0]) + '+' + str(audio)
 
     return False
