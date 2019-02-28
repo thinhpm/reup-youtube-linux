@@ -80,8 +80,8 @@ def upload_youtube_and_check_out_number(title, description, tags, file_name, stt
     #                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     # stdout, stderr = process.communicate()
     print(stdout)
-    # return 'Video URL' in stdout
-    return True
+    return len(str(stdout)) > 0
+
 
 
 def isFirstUpload(stt_id):
@@ -167,10 +167,9 @@ def hanlde(name_title, description, genres, stt_id):
     file_name = get_file_upload()
     file_name = str(file_name)
     temp_file_name = str(file_name)
-    # file_name = process_video(file_name, stt_id)
+    file_name = process_video(file_name, stt_id)
     name_title = replace_name_title(name_title, stt_id)
     description = name_title
-    file_name = 'input/input.mp4'
 
     if file_name:
         print("Uploading...")
