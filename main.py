@@ -269,6 +269,10 @@ def get_number_video(url):
         if '480p' in item and 'mp4' in item:
             return item.split(' ')[0]
 
+    for item in arr:
+        if '360' in item and 'mp4' in item:
+            return item.split(' ')[0]
+
     return False
 
 
