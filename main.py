@@ -166,8 +166,7 @@ def hanlde(name_title, description, genres, stt_id):
     if file_name:
         print("Uploading...")
         #isFirstUpload(stt_id)
-        if True:
-
+        if isFirstUpload(stt_id):
             os.system('youtube-upload --title="' + str(
                 name_title) + '" --description="' + description + '" --tags="' + genres + '" ' + ' --client-secrets="' +
                       str(stt_id) + '/client_secrets.json" --credentials-file="' + str(stt_id) + '/credentials.json" ' + str(file_name))
@@ -183,8 +182,10 @@ def hanlde(name_title, description, genres, stt_id):
 
 
 def download_video_from_youtube(id_video):
+    number = get_number_video("https://www.youtube.com/watch?v=" + str(id_video))
+
     print("Downloading...")
-    url = "youtube-dl -o 'input/input.%(ext)s' https://www.youtube.com/watch?v=" + str(id_video)
+    url = "youtube-dl -f " + str(number) + " -o 'input/input.%(ext)s' https://www.youtube.com/watch?v=" + str(id_video)
     print(url)
     os.system(url)
 
@@ -248,6 +249,23 @@ def get_source_links(stt_id):
         arr_website_avail.append(line.replace('\n', ''))
     fo.close()
     return arr_website_avail
+
+
+def get_number_video(url):
+    process = subprocess.Popen(['youtube-dl', '-F', str(url)],
+                               shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    stdout, stderr = process.communicate()
+    arr = str(stdout).split('\\n')
+
+    for item in arr:
+        if '720p' in item and 'mp4' in item:
+            return item.split(' ')[0]
+
+    for item in arr:
+        if '480p' in item and 'mp4' in item:
+            return item.split(' ')[0]
+
+    return False
 
 
 if __name__ == '__main__':
