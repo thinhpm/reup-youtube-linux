@@ -256,9 +256,12 @@ def get_source_links(stt_id):
 
 
 def get_number_video(url):
-    process = subprocess.Popen(['youtube-dl', '-F', str(url)],
-                               shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    stdout, stderr = process.communicate()
+    stdout = subprocess.check_output(['youtube-dl', '-F', url])
+    # process = subprocess.Popen(['youtube-dl', url],
+    #                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # stdout, stderr = process.communicate()
+
+
     arr = str(stdout).split('\\n')
 
     for item in arr:
