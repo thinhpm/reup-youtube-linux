@@ -261,20 +261,25 @@ def get_number_video(url):
     #                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     # stdout, stderr = process.communicate()
 
-
     arr = str(stdout).split('\\n')
+
+    audio = ''
+
+    for item in arr:
+        if 'm4a' in item:
+            audio = item.split(' ')[0]
 
     for item in arr:
         if '720p' in item and 'mp4' in item:
-            return item.split(' ')[0]
+            return str(item.split(' ')[0]) + '+' + str(audio)
 
     for item in arr:
         if '480p' in item and 'mp4' in item:
-            return item.split(' ')[0]
+            return str(item.split(' ')[0]) + '+' + str(audio)
 
     for item in arr:
         if '360p' in item and 'mp4' in item:
-            return item.split(' ')[0]
+            return str(item.split(' ')[0]) + '+' + str(audio)
 
     return False
 
