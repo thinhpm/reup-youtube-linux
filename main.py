@@ -270,7 +270,7 @@ def get_number_video(url):
             return item.split(' ')[0]
 
     for item in arr:
-        if '360' in item and 'mp4' in item:
+        if '360p' in item and 'mp4' in item:
             return item.split(' ')[0]
 
     return False
