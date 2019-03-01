@@ -68,9 +68,10 @@ def save_to_file(id_series, id_chapt_new, stt_id):
     return True
 
 
-def upload_youtube_and_check_out_number(title, description, tags, file_name, stt_id):
-    stdout = subprocess.check_output(['youtube-upload', '--title="' + str(title) + '"', '--tags="' + str(tags) + '"',
-                                '--description="' + str(description) + '"', '--client-secrets=' + str(stt_id) + '/client_secrets.json',
+def upload_youtube_and_check_out_number(title, description, tags, file_name, playlist, stt_id):
+    stdout = subprocess.check_output(['youtube-upload', '--title=' + str(title) + '', '--tags="' + str(tags) + '"',
+                                '--description=' + str(description) + '', '--playlist=' + str(playlist),
+                                      '--client-secrets=client_secrets.json',
                                 '--credentials-file=' + str(stt_id) + '/credentials.json', str(file_name)])
 
     #'--thumbnail=' + thumbnail,
@@ -127,67 +128,67 @@ def process_video(file_name, stt_id):
     return 'output/' + str(file_name)
 
 
-def replace_name_title(name_title, stt_id):
-    path_file = str(stt_id) + '/stt-video.txt'
+def get_data_file(stt_id, file_name):
+    path_file = str(stt_id) + '/' + file_name + '.txt'
     fo = open(path_file, "r")
     lines = fo.readlines()
     fo.close()
-    stt_video = 1
-    has_change = False
+    stt_video = ''
 
     if len(lines) > 0:
-        stt_video = int(lines[0]) + 1
+        stt_video = lines[0]
 
-    name_title = name_title.replace("2018", "2019")
-    temp_name = name_title
+    return stt_video
 
-    arr_stt = re.findall(r'#(.*?) ', temp_name)
 
-    if len(arr_stt) == 0:
-        arr_stt = temp_name.split(" ")
+def update_stt_video(stt_id, stt_video):
+    path_file = str(stt_id) + '/stt-video.txt'
+    fo = open(path_file, "w")
+    fo.write(str(stt_video))
+    fo.close()
 
-    for stt in arr_stt:
-        if stt.isdigit() and stt != 2019 and stt != 2018:
-            has_change = True
-            stt_need_change = stt
 
-            name_title = name_title.replace(stt_need_change, str(stt_video))
+def replace_name_title(stt_id, stt_video):
+    stt_video = get_data_file(stt_id, 'stt-video')
+    title = get_data_file(stt_id, 'title')
 
-    if len(arr_stt) == 0:
-        has_change = True
-        name_title = name_title + str(stt_video)
-
-    if has_change:
-        fo = open(path_file, "w")
-        fo.write(str(stt_video))
-        fo.close()
-
-    return name_title
+    return title + ' #' + str(stt_video)
 
 
 def hanlde(name_title, description, genres, stt_id):
     check = False
+
     file_name = get_file_upload()
     file_name = str(file_name)
+
+    stt_video = get_data_file(stt_id, 'stt-video')
+    stt_video = int(stt_video) + 1
+
     temp_file_name = str(file_name)
     file_name = process_video(file_name, stt_id)
-    name_title = replace_name_title(name_title, stt_id)
+    name_title = replace_name_title(stt_id, stt_video)
     description = name_title
+
+    playlist = get_data_file(stt_id, 'playlist')
 
     if file_name:
         print("Uploading...")
         #isFirstUpload(stt_id)
         if isFirstUpload(stt_id):
             os.system('youtube-upload --title="' + str(
-                name_title) + '" --description="' + description + '" --tags="' + genres + '" ' + ' --client-secrets="' +
-                      str(stt_id) + '/client_secrets.json" --credentials-file="' + str(stt_id) + '/credentials.json" ' + str(file_name))
+                name_title) + '" --description="' + description + '" --tags="' + genres +
+                      '" --playlist="' + str(playlist) + '" --client-secrets="client_secrets.json" --credentials-file="' + str(stt_id) +
+                      '/credentials.json" ' + str(file_name))
 
             check = True
         else:
-            check = upload_youtube_and_check_out_number(name_title, description, genres, file_name, stt_id)
+            check = upload_youtube_and_check_out_number(name_title, description, genres, file_name, playlist, stt_id)
 
     os.remove('input/' + temp_file_name)
     os.remove('output/' + temp_file_name)
+
+    if check:
+        update_stt_video(stt_id, stt_video)
 
     return check
 
@@ -223,6 +224,16 @@ def get_tags(id_video):
     return list_tag
 
 
+def update_max_video(stt_id):
+    stt_video = get_data_file(stt_id, 'max-video')
+    stt_video = int(stt_video) - 1
+
+    path_file = str(stt_id) + '/max-video.txt'
+    fo = open(path_file, "w")
+    fo.write(str(stt_video))
+    fo.close()
+
+
 def get_list_video(channel_id, stt_id):
     print("Get list video..")
     max_result = 50
@@ -237,12 +248,15 @@ def get_list_video(channel_id, stt_id):
     for item in list_item['items']:
         title = item['snippet']['title']
         description = title
+
         try:
             id_video = item['contentDetails']['upload']['videoId']
         except KeyError:
             id_video = item['contentDetails']['playlistItem']['resourceId']['videoId']
 
-        if check_exist_chapt(channel_id, id_video, stt_id):
+        stt_video = get_data_file(stt_id, 'max-video')
+
+        if check_exist_chapt(channel_id, id_video, stt_id) and int(stt_video) > 0:
             tags = get_tags(id_video)
             check = False
             has_video = download_video_from_youtube(id_video)
@@ -251,8 +265,12 @@ def get_list_video(channel_id, stt_id):
                 check = hanlde(title, description, tags, stt_id)
             else:
                 save_to_file(channel_id, id_video, stt_id)
+
             if check:
                 save_to_file(channel_id, id_video, stt_id)
+
+                update_max_video(stt_id)
+
                 print("Done")
                 time.sleep(150)
 
