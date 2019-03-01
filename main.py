@@ -143,6 +143,9 @@ def replace_name_title(name_title, stt_id):
 
     arr_stt = re.findall(r'#(.*?) ', temp_name)
 
+    if len(arr_stt) == 0:
+        arr_stt = temp_name.split(" ")
+
     for stt in arr_stt:
         if stt.isdigit() and stt != 2019 and stt != 2018:
             has_change = True
